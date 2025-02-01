@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId, Timestamp } = require('mongodb')
 const jwt = require('jsonwebtoken')
 const morgan = require('morgan')
 
@@ -48,6 +48,8 @@ const client = new MongoClient(uri, {
 })
 async function run() {
   try {
+    const db = client.db('plantNet')
+    const userCollection = db.collection('users')
     // Generate jwt token
     app.post('/jwt', async (req, res) => {
       const email = req.body
@@ -75,6 +77,18 @@ async function run() {
       } catch (err) {
         res.status(500).send(err)
       }
+    })
+
+    //save or update a user in db
+    app.post('/user/:email', async (req, res) => {
+      const email = req.params.email
+      const user = req.body
+
+      const query = { email }
+      const isExit = await userCollection.findOne(query)
+      if (isExit) return res.send(isExit)
+      const result = await userCollection.insertOne({ ...user, role: 'customar', timestamp: Date.now() })
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
