@@ -50,6 +50,7 @@ async function run() {
   try {
     const db = client.db('plantNet')
     const userCollection = db.collection('users')
+    const plantCollection = db.collection('plants')
     // Generate jwt token
     app.post('/jwt', async (req, res) => {
       const email = req.body
@@ -87,7 +88,15 @@ async function run() {
       const query = { email }
       const isExit = await userCollection.findOne(query)
       if (isExit) return res.send(isExit)
-      const result = await userCollection.insertOne({ ...user, role: 'customar', timestamp: Date.now() })
+      const result = await userCollection.insertOne({ ...user, role: 'customar', timestamp: Date.now() }) 
+      res.send(result)
+    })
+
+
+    //save plants in db
+    app.post('/plant', verifyToken, async (req, res) => {
+      const plant = req.body
+      const result = await plantCollection.insertOne(plant) 
       res.send(result)
     })
 
