@@ -88,15 +88,20 @@ async function run() {
       const query = { email }
       const isExit = await userCollection.findOne(query)
       if (isExit) return res.send(isExit)
-      const result = await userCollection.insertOne({ ...user, role: 'customar', timestamp: Date.now() }) 
+      const result = await userCollection.insertOne({ ...user, role: 'customar', timestamp: Date.now() })
       res.send(result)
     })
 
-
+    //--------------------------------------------Manage Plants-----------------------------------------------------------
+    //get planst data 
+    app.get('/plants', async (req, res) => {
+      const result = await plantCollection.find().toArray()
+      res.send(result)
+    })
     //save plants in db
     app.post('/plant', verifyToken, async (req, res) => {
       const plant = req.body
-      const result = await plantCollection.insertOne(plant) 
+      const result = await plantCollection.insertOne(plant)
       res.send(result)
     })
 
